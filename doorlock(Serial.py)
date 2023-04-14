@@ -6,20 +6,22 @@ import asyncio
 import telegram
 import time
 import serial
+
 #아두이노와 시리얼통신 설정
 py_serial = serial.Serial(
     port = "/dev/ttyACM0",
     baudrate=9600
 )
+
 #텔레그램 토큰아이디
-token = "6176833236:AAGoDeXjeO7KoVL2_zT3pBfaJkLvf01YDvA"#변경 가능성있음
-id="5557262830"#변경 가능성 있음
+token = "본인 토큰으로 변경후 사용하세요"
+id="본인 챗봇아이디로 변경 후 사용하세요"
 
 #경로지정
-PATH = '/home/masgt/Desktop/img'
+PATH = '본인이 사진을 저장할 경로 설정 후 사용하세요'
 os.chdir(PATH)
 
-#비밀번호 생성 및 전송
+#비밀번호 생성 및 텔레그램 전송
 num = random.randint(0,999)
 print(num)
 
@@ -79,5 +81,5 @@ while True:
 
         commend = 'a'
         py_serial.write(commend.encode())
-        commend = 'b'
+        commend = 'b' #이부분 a값이 계속 들어가서 무한루프발생 그거 잡으려고 급한대로 null값넣어서 a값 캔슬한것임
         py_serial.write(commend.encode())
