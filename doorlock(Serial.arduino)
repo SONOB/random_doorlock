@@ -1,19 +1,20 @@
-char cmd;
-#include <SPI.h>
+#include <SPI.h>     //rfid 설정
 #include <MFRC522.h>
 #define SS_PIN 53
 #define RST_PIN 42
-MFRC522 rfid(SS_PIN, RST_PIN); //rfid 객체 생성
+MFRC522 rfid(SS_PIN, RST_PIN);
+char cmd;
 
-#include <Servo.h>    // 서보 라이브러리를 지정
-#define servoPin 2     // 서보 모터핀을 지정
-Servo servo;      // 서보 라이브러리 변수를 선언
-int pos=0;      // 현재 각도를 저장할 변수를 지정한다
- 
+#include <Servo.h>   //서보모터 사용 설정
+#define servoPin 2
+Servo servo;
+int pos=0;      
+
 void setup()
 {
   servo.attach(servoPin);     // 서보모터 핀을 설정한다
   servo.write(0);       // 서보모터 0도 위치로 초기화
+  
   Serial.begin(9600);   // 시리얼 통신 시작
   SPI.begin();      // SPI 통신 시작
   rfid.PCD_Init();   // rfid(MFRC522) 초기화
@@ -26,7 +27,7 @@ void loop()
       cmd = Serial.read();     //라즈베리파이에서 값수신
   }
   if(cmd=='a'){
-    servo.write(180);   // 서보모터의 각도를 변경한다, 즉 도어락 오픈
+    servo.write(180);   // 서보모터 작동, 즉 도어락 오픈
     delay(3000);
     servo.write(0);
   }
@@ -40,7 +41,7 @@ void loop()
   {
     return;
   }
-// UID 값을 16진 값으로 읽고 저장한 후 시리얼 모니터로 표시함
+// UID 값을 16진 값으로 읽고 저장
   String content= "";
   byte letter;
   for (byte i = 0; i < rfid.uid.size; i++)
@@ -49,11 +50,12 @@ void loop()
     content.concat(String(rfid.uid.uidByte[i], HEX));
   }
   content.toUpperCase();
-  if (content.substring(1) == "D7 85 AE 19")// 엑세스 승인 하고자하는 UID 기록
+  
+  if (content.substring(1) == "D7 85 AE 19")// 엑세스 승인 하고자하는 UID 설정
   {
   // 인증이 되면 서보모터를 작동시킨다.
-    servo.write(180);   // 서보모터의 각도를 변경한다      
-    delay(3000); // 서보 모터의 각도가 변하는 것을 기다려 준다.
-    servo.write(0);     // 시간지연 후 문을 닫는다  
+    servo.write(180);   // 서보모터 작동, 즉 도어락 오픈    
+    delay(3000);
+    servo.write(0);
   }
 }
