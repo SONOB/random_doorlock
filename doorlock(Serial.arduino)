@@ -23,12 +23,12 @@ void setup()
 }
 void loop()
 { if(Serial.available()){
-      cmd = Serial.read();
+      cmd = Serial.read();     //라즈베리파이에서 값수신
   }
   if(cmd=='a'){
-    servo.write(180);   // 서보모터의 각도를 변경한다      
-    delay(3000);        // 서보 모터의 각도가 변하는 것을 기다려 준다.
-    servo.write(0);       // 시간지연 후 문을 닫는다
+    servo.write(180);   // 서보모터의 각도를 변경한다, 즉 도어락 오픈
+    delay(3000);
+    servo.write(0);
   }
   // 새카드 접촉이 있을 때만 다음 단계로 넘어감
   if ( ! rfid.PICC_IsNewCardPresent())
