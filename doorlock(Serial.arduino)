@@ -1,0 +1,59 @@
+char cmd;
+#include <SPI.h>
+#include <MFRC522.h>
+#define SS_PIN 53
+#define RST_PIN 42
+MFRC522 rfid(SS_PIN, RST_PIN); //rfid 객체 생성
+
+#include <Servo.h>    // 서보 라이브러리를 지정
+#define servoPin 2     // 서보 모터핀을 지정
+Servo servo;      // 서보 라이브러리 변수를 선언
+int pos=0;      // 현재 각도를 저장할 변수를 지정한다
+ 
+void setup()
+{
+  servo.attach(servoPin);     // 서보모터 핀을 설정한다
+  servo.write(0);       // 서보모터 0도 위치로 초기화
+  Serial.begin(9600);   // 시리얼 통신 시작
+  SPI.begin();      // SPI 통신 시작
+  rfid.PCD_Init();   // rfid(MFRC522) 초기화
+  Serial.println("Approximate your card to the reader...");
+  Serial.println();
+
+}
+void loop()
+{ if(Serial.available()){
+      cmd = Serial.read();
+  }
+  if(cmd=='a'){
+    servo.write(180);   // 서보모터의 각도를 변경한다      
+    delay(3000);        // 서보 모터의 각도가 변하는 것을 기다려 준다.
+    servo.write(0);       // 시간지연 후 문을 닫는다
+  }
+  // 새카드 접촉이 있을 때만 다음 단계로 넘어감
+  if ( ! rfid.PICC_IsNewCardPresent())
+  {
+    return;
+  }
+  // 카드 읽힘이 제대로 되면 다음으로 넘어감
+  if ( ! rfid.PICC_ReadCardSerial())
+  {
+    return;
+  }
+// UID 값을 16진 값으로 읽고 저장한 후 시리얼 모니터로 표시함
+  String content= "";
+  byte letter;
+  for (byte i = 0; i < rfid.uid.size; i++)
+  {
+    content.concat(String(rfid.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    content.concat(String(rfid.uid.uidByte[i], HEX));
+  }
+  content.toUpperCase();
+  if (content.substring(1) == "D7 85 AE 19")// 엑세스 승인 하고자하는 UID 기록
+  {
+  // 인증이 되면 서보모터를 작동시킨다.
+    servo.write(180);   // 서보모터의 각도를 변경한다      
+    delay(3000); // 서보 모터의 각도가 변하는 것을 기다려 준다.
+    servo.write(0);     // 시간지연 후 문을 닫는다  
+  }
+}
