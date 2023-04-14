@@ -18,9 +18,6 @@ void setup()
   Serial.begin(9600);   // 시리얼 통신 시작
   SPI.begin();      // SPI 통신 시작
   rfid.PCD_Init();   // rfid(MFRC522) 초기화
-  Serial.println("Approximate your card to the reader...");
-  Serial.println();
-
 }
 void loop()
 { if(Serial.available()){
