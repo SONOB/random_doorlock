@@ -1,0 +1,83 @@
+import numpy as np
+import cv2
+import random
+import os
+import asyncio
+import telegram
+import time
+import serial
+#아두이노와 시리얼통신 설정
+py_serial = serial.Serial(
+    port = "/dev/ttyACM0",
+    baudrate=9600
+)
+#텔레그램 토큰아이디
+token = "6176833236:AAGoDeXjeO7KoVL2_zT3pBfaJkLvf01YDvA"#변경 가능성있음
+id="5557262830"#변경 가능성 있음
+
+#경로지정
+PATH = '/home/masgt/Desktop/img'
+os.chdir(PATH)
+
+#비밀번호 생성 및 전송
+num = random.randint(0,999)
+print(num)
+
+async def main():
+    bot = telegram.Bot(token)
+    await bot.sendMessage(chat_id=id, text="비밀번호: "+str(num))
+asyncio.run(main())
+
+#비밀번호 대조 및 실행
+count = 0
+while True:
+    ans = int(input())
+
+#비밀번호 3회이상 오류
+    if (num != ans):
+        count += 1
+        print("비밀번호 오류")
+        if (count == 3):
+            #카메라 사용준비
+            cap = cv2.VideoCapture(0, cv2.CAP_V4L)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            timestr = time.strftime('%Y%m%d_%H%M%S')
+            filename = f'thief_{str(timestr)}.jpg'
+
+            res, frame = cap.read()
+            frame = cv2.flip(frame,1)
+
+            cv2.imwrite(filename, frame)
+
+            async def main():
+                bot = telegram.Bot(token)
+                img_file = filename
+                await bot.sendMessage(chat_id=id, text="비밀번호 3회 오류")
+                await bot.send_photo(chat_id=id, photo=open(img_file, 'rb'))
+            asyncio.run(main())
+
+            cap.release()
+            cv2.destroyAllWindows()
+            
+        if(count == 5):
+            async def main():
+                bot = telegram.Bot(token)
+                await bot.sendMessage(chat_id=id, text="비밀번호 5회 오류")
+                await bot.sendMessage(chat_id=id, text="도어락을 완전히 잠금니다.")
+            asyncio.run(main())
+            break
+
+#비밀번호 정답시
+    elif(ans == num):
+        count = 0
+        async def main():
+            bot = telegram.Bot(token)
+            await bot.sendMessage(chat_id=id, text="인증되었습니다.")
+        asyncio.run(main())
+        print("open")
+
+        commend = 'a'
+        py_serial.write(commend.encode())
+        commend = 'b'
+        py_serial.write(commend.encode())
